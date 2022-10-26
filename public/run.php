@@ -1,6 +1,5 @@
 <?php
 
-require __DIR__ . '/../autoload.php';
 require __DIR__ . '/../config/app.php';
 
 use App\Core\DatabaseScan;
