@@ -2,8 +2,6 @@
 
 namespace App\Core;
 
-use App\Utils\Debug;
-
 class QueryBuilder
 {
     const TAB = "\n\t";
