@@ -5,12 +5,32 @@ namespace App\Utils;
 class Debug
 {
     /**
+     * Class constructor method.
+     * 
+     * @return void
+     */
+    public function __construct()
+    {
+        echo "App Debug: running... \n";
+    }
+
+    /**
+     * Class destructor method.
+     * 
+     * @return void
+     */
+    public function __destruct()
+    {
+        echo "App Debug: terminated... \n";
+    }
+
+    /**
      * Debug function.
      * 
      * @param  mixed|array  $vars
      * @return void
      */
-    static public function debug(...$args)
+    public function debug(...$args)
     {
         $args = func_get_args();
 
@@ -28,7 +48,7 @@ class Debug
      * @param  mixed|array  $vars
      * @return void
      */
-    static public function debugvd(...$args)
+    public function debugvd(...$args)
     {
         $args = func_get_args();
 
