@@ -2,9 +2,7 @@
 
 namespace Database;
 
-use \PDO;
-
-class DatabaseConnection
+abstract class DatabaseConnection
 {
     /**
      * Database connection.
@@ -16,28 +14,38 @@ class DatabaseConnection
     /**
      * Class constructor method.
      * 
-     * @param  string  $drive, $host, $port, $dbname, $username, $password
-     * @param  array  $options
+     * @param  mixed  $args
      * @return void
      */
-    public function __construct($drive, $host, $port, $dbname, $username, $password = '', $options = [])
+    public function __construct(...$args)
     {
-        $this->connection = $this->connect($drive, $host, $port, $dbname, $username, $password, $options);
+        $this->connection = $this->connect(...$args);
     }
 
     /**
      * Set the connection with a database and return it as well.
      * 
-     * @param  string  $drive, $host, $port, $dbname, $username, $password
-     * @param  array  $options
-     * @return ???
+     * @param  array  $array
+     * @return mixed?
      */
-    protected function connect($drive, $host, $port, $dbname, $username, $password = '', $options = [])
-    {
-        $dsn = $drive . ':host=' . $host . ';port=' . $port . ';dbname=' . $dbname;
+    abstract protected function connect(array $array);
 
-        return new PDO($dsn, $username, $password, $options);
-    }
+    /**
+     * Make a regulat query.
+     * 
+     * @param  string  $query
+     * @return mixed
+     */
+    abstract protected function query($query);
+
+    /**
+     * Make a statement transaction.
+     * 
+     * @param  string  $statement
+     * @param  mixed  $vars...
+     * @return mixed
+     */
+    abstract protected function statement($query, ...$vars);
 
     /**
      * Get the connection attribute.
@@ -47,39 +55,5 @@ class DatabaseConnection
     public function getConnection()
     {
         return $this->connection;
-    }
-
-    /**
-     * Make a regulat query.
-     * 
-     * @param  string  $query
-     * @return mixed
-     */
-    public function query($query)
-    {
-        $result = $this->connection->query($query);
-
-        return $result->fetchAll();
-    }
-
-    /**
-     * Make a statement transaction.
-     * 
-     * @param  string  $statement
-     * @param  mixed  $vars...
-     * @return mixed
-     */
-    public function statement($query, ...$vars)
-    {
-        $args = func_get_args();
-        $query = array_shift($args);
-
-        //TODO
-        // $statement = $this->connection->prepare($query);
-        // $statement->bindParam();
-        // $statement->bindParam();
-        // $statement->execute();
-        // $statement->fetch();
-        // $statement->fetchAll();
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Core;
 
 use App\Core\QueryBuilder;
-use Database\DatabaseConnection as DBConnection;
+use Database\DatabaseConnection;
 
 class DatabaseScan
 {
@@ -51,7 +51,7 @@ class DatabaseScan
      * @param  string  $dbname
      * @return void
      */
-    public function __construct(QueryBuilder $builder, DBConnection $db, string $dbname)
+    public function __construct(QueryBuilder $builder, DatabaseConnection $db, string $dbname)
     {
         $this->builder = $builder;
         $this->db = $db;
