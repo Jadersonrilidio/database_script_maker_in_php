@@ -1,0 +1,7 @@
+
+aprofundar sobre valores  de DADOS ESPACIAIS e  dados tipo JSON
+
+usar ENUM e melhor do que criar uma nova tabela com os dados guardados no estilo ID/title?
+
+MySQL atualiza registros identicos?
+
