@@ -51,9 +51,9 @@ class DatabaseScan
      * @param  string  $dbname
      * @return void
      */
-    public function __construct(QueryBuilder $builder, DatabaseConnection $db, string $dbname)
+    public function __construct(DatabaseConnection $db, string $dbname)
     {
-        $this->builder = $builder;
+        $this->builder = new QueryBuilder;
         $this->db = $db;
         $this->dbname = $dbname;
 

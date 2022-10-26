@@ -2,17 +2,23 @@
 
 namespace App\Core;
 
+use App\Core\QueryBuilder;
+
 class SQLWriter
 {
-    const TAB = "\n\t";
-    const END = "\n\n";
-    
     /**
      * Database structure representation.
      * 
      * @var array
      */
     protected $dbs;
+
+    /**
+     * QueryBuilder instance.
+     * 
+     * @var App\Core\QueryBuilder
+     */
+    protected $builder;
 
     /**
      * The generated file name.
@@ -36,11 +42,25 @@ class SQLWriter
     protected $filePath;
 
     /**
+     * Validated file full URL.
+     * 
+     * @var string
+     */
+    protected $fileUrl;
+
+    /**
      * File Handler instance.
      * 
      * @var \Handler
      */
     protected $fileHandler;
+
+    /**
+     * Open file if exists.
+     * 
+     * @var bool
+     */
+    protected $override = false;
 
     /**
      * Class constructor method.
@@ -50,25 +70,41 @@ class SQLWriter
      * @param  string  $filepath
      * @return void
      */
-    public function __construct($dbStructure, $fileExt = '.txt', $filePath = BASE_PATH.'/storage/files/')
+    public function __construct(array $dbStructure, string $fileExt = '.sql', string $filePath = BASE_PATH . '/storage/files/')
     {
         $this->dbs = $dbStructure;
+        $this->builder = new QueryBuilder;
         $this->fileExt = $fileExt;
         $this->filePath = $filePath;
         $this->setFileName();
-
-        $this->createOpenFile();
+        $this->setFileUrl();
     }
 
-    public function run()
+    /**
+     * Creates or open a file and write the database script on it.
+     * 
+     * @return void
+     */
+    public function write()
     {
-        $data = $this->createDatabaseSqlScript();
+        $this->createOpenFile();
+
+        $dbname = array_key_first($this->dbs);
+
+        $data = $this->builder->createDatabase($dbname)->charset()->collate()->close()->getQuery();
         $this->writeOnFile($data);
 
-        foreach ($this->dbs as $dbname => $tables)
-            foreach ($tables as $table => $columns)
-                foreach ($columns as $column => $attributes)
-                    print_r($attributes);
+        $data = $this->builder->useDatabase($dbname)->close()->getQuery();
+        $this->writeOnFile($data);
+
+        foreach ($this->dbs[$dbname] as $key => $table) {
+            $data = $this->builder->createTable($key, $table)->close()->getQuery();
+            $this->writeOnFile($data);
+        }
+
+        $this->closeFile();
+
+        echo "SQL Writer: SQL script created at - " . $this->fileUrl . " \n";
     }
 
     /**
@@ -78,32 +114,40 @@ class SQLWriter
      */
     private function createOpenFile()
     {
-        $fileUrl = $this->filePath . $this->fileName . $this->fileExt;
+        $fileUrl = $this->assertFileName($this->override);
 
-        $this->assertFileName($fileUrl);
+        $this->fileHandler = fopen($fileUrl, 'w');
 
-        $this->fileHandler = fopen($fileUrl, 'a');
+        echo ($this->fileHandler)
+            ? "SQL Writer: File created \n"
+            : "SQL Writer: Error on create file \n";
     }
 
     /**
      * Assert fileName passed by reference doesn't exists.
      * 
-     * @param  string  $fileUrl
-     * @return void
+     * @param  bool  $override
+     * @return string
      */
-    private function assertFileName(&$fileUrl)
+    private function assertFileName(bool $override = false)
     {
-        if (!file_exists($fileUrl)) return;
+        if ($override === true)
+            return $this->fileUrl;
 
-        $counter = 1;
-        $fileUrl = $fileUrl .'_'. $counter;
+        $counter = 0;
 
-        while (file_exists($fileUrl))
-            $fileUrl = str_replace('_'. $counter, '_'. ++$counter, $fileUrl);
+        while (file_exists($this->fileUrl))
+            $this->fileUrl = $this->filePath . $this->fileName . '(' . ++$counter . ')' . $this->fileExt;
+
+        $this->fileName = $this->fileName . '(' . $counter . ')';
+
+        return $this->fileUrl;
     }
 
     /**
      * Write to file.
+     * 
+     * @return void
      */
     public function writeOnFile($data)
     {
@@ -111,48 +155,13 @@ class SQLWriter
     }
 
     /**
-     * Mount SQL scripts.
+     * Close opened file.
      * 
-     * @return string
+     * @return void
      */
-    private function createDatabaseSqlScript()
+    private function closeFile()
     {
-        $script = "CREATE DATABASE IF NOT EXISTS "
-            . $this->dbname
-            . self::TAB . "DEFAULT CHARACTER SET = utf8 " 
-            . self::TAB . "DEFAULT COLLATE = utf8_general_ci;" . self::END
-            . "USE " . $this->dbname . ";" . self::END;
-
-        return $script;
-    }
-
-    /**
-     * Mount SQL scripts.
-     * 
-     * @return string
-     */
-    private function createTableSqlScript($table)
-    {
-        $script = "CREATE TABLE IF NOT EXISTS "
-            . $table . " ( "
-            . self::TAB . " COLUMN_01 " . ","
-            . self::TAB . " ...       " . ","
-            . self::TAB . " COLUMN_N  " . PHP_EOL
-            . ");" . self::END;
-
-        return $script;
-    }
-
-    /**
-     * Mount SQL scripts.
-     * 
-     * @return string
-     */
-    private function createColumnSql($column)
-    {
-        $script = "";
-
-        return $script;
+        fclose($this->fileHandler);
     }
 
     /**
@@ -162,32 +171,16 @@ class SQLWriter
      */
     private function setFileName()
     {
-        $this->fileName = array_key_first($this->dbs) . '_sql_script';
+        $this->fileName = array_key_first($this->dbs) . '_script';
     }
 
     /**
+     * Create file URL.
      * 
+     * @return void
      */
-    private function writeCreateTableSQLCode($data)
+    private function setFileUrl()
     {
-        $sql = "CREATE TABLE ";
-
-        foreach ($data as $table => $columns) {
-            $sql .= $table . " ( \n\t";
-
-            foreach ($columns as $column) {
-                $sql .= $column['field'] . " ";
-                $sql .= strtoupper($column['type']) . " ";
-                $sql .= ($column['key'] == 'PRI') ? "PRIMARY " : '';
-                $sql .= ($column['null'] == "NO") ? "NOT NULL " : "NULL ";
-                $sql .= ($column['default']) ? "DEFAULT '" . $column['default'] . "' " : '';
-                $sql .= strtoupper($column['extra']) ?? '';
-                $sql .= ", \n\t";
-            }
-
-            $sql = trim($sql);
-            $sql = trim($sql, ',');
-            $sql .= "\n);";
-        }
+        $this->fileUrl = $this->filePath . $this->fileName . $this->fileExt;
     }
 }

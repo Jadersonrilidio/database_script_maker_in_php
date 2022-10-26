@@ -30,7 +30,7 @@ class Debug
      * @param  mixed|array  $vars
      * @return void
      */
-    public function debug(...$args)
+    static public function debug(...$args)
     {
         $args = func_get_args();
 
@@ -48,7 +48,7 @@ class Debug
      * @param  mixed|array  $vars
      * @return void
      */
-    public function debugvd(...$args)
+    static public function debugvd(...$args)
     {
         $args = func_get_args();
 
