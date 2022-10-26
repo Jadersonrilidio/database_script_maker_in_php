@@ -4,7 +4,7 @@ namespace App\Core;
 
 use App\Core\QueryBuilder;
 
-class SQLWriter
+class SQLScript
 {
     /**
      * Database structure representation.

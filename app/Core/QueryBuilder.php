@@ -43,9 +43,11 @@ class QueryBuilder
         return $this;
     }
 
-    //TODO
-    // Helper functions for script building in SQLWriter class
-    // =====================================================================
+    /*
+    | =====================================================================
+    |       Helper functions for script building in SQLWriter class
+    | =====================================================================
+    */
 
     /**
      * Build a query to create database if not exists.
@@ -100,7 +102,7 @@ class QueryBuilder
     }
 
     /**
-     * DESCRIPTION
+     * //TODO
      * 
      * @param  string  $name
      * @param  array  $table
@@ -108,17 +110,17 @@ class QueryBuilder
      */
     public function createTable(string $name, array $table)
     {
-        $this->query .= " CREATE TABLE IF NOT EXISTS "
+        $this->query .= "CREATE TABLE IF NOT EXISTS "
             . strtolower($name)
-            . " ( "
+            . " ("
             . $this->insertColumns($table) . PHP_EOL
-            . " )";
+            . ")";
 
         return $this;
     }
 
     /**
-     * DESCRIPTION
+     * //TODO
      * 
      * @param  array  $column
      * @return string;
@@ -134,7 +136,7 @@ class QueryBuilder
     }
 
     /**
-     * DESCRIPTION
+     * //TODO
      * 
      * @param  array  $column
      * @return string;
@@ -147,7 +149,7 @@ class QueryBuilder
         $type = strtoupper($type) . ' ';
         $key = ($key == 'PRI') ? 'PRIMARY ' : '';
         $null = ($null != 'NULL') ? 'NOT NULL ' : '';
-        $extra = ($extra) ? strtoupper($extra)  . ' ' : '';
+        $extra = ($extra) ? strtoupper($extra) : '';
 
         if ($default) {
             $default = (is_numeric($default) or is_bool($default))
@@ -157,8 +159,6 @@ class QueryBuilder
 
         return self::TAB . $field . $type . $key . $null . $default . $extra;
     }
-
-    // =====================================================================
 
     /**
      * Close the query string properly.
