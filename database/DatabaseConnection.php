@@ -2,8 +2,6 @@
 
 namespace Database;
 
-use \PDO;
-
 abstract class DatabaseConnection
 {
     /**
@@ -27,11 +25,10 @@ abstract class DatabaseConnection
     /**
      * Set the connection with a database and return it as well.
      * 
-     * @param  string  $drive, $host, $port, $dbname, $username, $password
-     * @param  array  $options
+     * @param  array  $array
      * @return mixed?
      */
-    abstract protected function connect();
+    abstract protected function connect(array $array);
 
     /**
      * Make a regular query transaction.

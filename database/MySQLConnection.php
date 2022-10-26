@@ -14,9 +14,9 @@ class MySQLConnection extends DatabaseConnection
      * @param  array  $args
      * @return ???
      */
-    protected function connect(...$args)
+    protected function connect(array $args)
     {
-        extract(func_get_args());
+        extract($args);
 
         $dsn = $drive . ':host=' . $host . ';port=' . $port . ';dbname=' . $dbname;
 
