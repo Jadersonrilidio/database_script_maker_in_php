@@ -5,6 +5,7 @@ namespace App\Core;
 class QueryBuilder
 {
     const TAB = "\n\t";
+    const DUALTAB = "\n\t\t";
     const END = "\n\n";
 
     /**
@@ -28,24 +29,75 @@ class QueryBuilder
      */
     public function showTables()
     {
-        $this->query = $this->query . "SHOW TABLES ";
+        $this->query .= "SHOW TABLES ";
 
         return $this;
     }
 
     /**
+     * Build a query to show all columns details from a given table.
      * 
+     * @param  string  $table
+     * @return App\Core\QueryBuilder
      */
     public function showColumnsFromTable($table)
     {
-        $this->query = $this->query . "SHOW COLUMNS FROM " . $table;
+        $this->query .= "SHOW COLUMNS FROM " . $table;
+
+        return $this;
+    }
+
+    /**
+     * //TODO
+     * 
+     * @return App\Core\QueryBuilder
+     */
+    public function showDefaultCharset()
+    {
+        $this->query .= "";
+
+        return $this;
+    }
+
+    /**
+     * //TODO
+     * 
+     * @return App\Core\QueryBuilder
+     */
+    public function showDefaultCollation()
+    {
+        $this->query .= "";
+
+        return $this;
+    }
+
+    /**
+     * //TODO
+     * 
+     * @return App\Core\QueryBuilder
+     */
+    public function showConstraints()
+    {
+        $this->query .= "";
+
+        return $this;
+    }
+
+    /**
+     * //TODO
+     * 
+     * @return App\Core\QueryBuilder
+     */
+    public function showTableConstraints($table)
+    {
+        $this->query .= "";
 
         return $this;
     }
 
     /*
     | =====================================================================
-    |       Helper functions for script building in SQLWriter class
+    |       Helper functions for script building in SQLScript class
     | =====================================================================
     */
 
@@ -147,7 +199,7 @@ class QueryBuilder
 
         $field = strtolower($field) . ' ';
         $type = strtoupper($type) . ' ';
-        $key = ($key == 'PRI') ? 'PRIMARY ' : '';
+        $key = ($key == 'PRI') ? 'PRIMARY KEY ' : '';
         $null = ($null != 'NULL') ? 'NOT NULL ' : '';
         $extra = ($extra) ? strtoupper($extra) : '';
 
@@ -158,6 +210,24 @@ class QueryBuilder
         }
 
         return self::TAB . $field . $type . $key . $null . $default . $extra;
+    }
+
+    /**
+     * Add a constraint to an existent table.
+     * 
+     * @param  string  $table, $col, $fktable, $fkcol, $update, $delete
+     * @return App\Core\QueryBuilder;
+     */
+    public function addConstraintFK($table, $col, $fktable, $fkcol, $update = 'RESTRICT', $delete = 'RESTRICT')
+    {
+        $this->query .= "ALTER TABLE " . strtolower($table)
+            . self::TAB . " ADD CONSTRAINT " . strtolower($table) . '_' . strtolower($col) . '_fk'
+            . " FOREIGN KEY (" . strtolower($col) . ")"
+            . " REFERENCES " . strtolower($fktable) . "(" . strtolower($fkcol) . ")"
+            . self::DUALTAB . "ON UPDATE " . strtoupper($update)
+            . self::DUALTAB . "ON DELETE " . strtoupper($delete) . ";" . self::END;
+
+        return $this;
     }
 
     /**

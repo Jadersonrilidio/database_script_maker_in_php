@@ -91,24 +91,19 @@ class SQLScript
 
         $dbname = array_key_first($this->dbs);
 
-        $data = $this->builder->createDatabase($dbname)->charset()->collate()->close()->getQuery();
-        $this->writeOnFile($data);
+        $this->createDatabase($dbname);
 
-        $data = $this->builder->useDatabase($dbname)->close()->getQuery();
-        $this->writeOnFile($data);
+        $this->useDatabase($dbname);
 
-        foreach ($this->dbs[$dbname] as $key => $table) {
-            $data = $this->builder->createTable($key, $table)->close()->getQuery();
-            $this->writeOnFile($data);
-        }
+        foreach ($this->dbs[$dbname] as $key => $table)
+            $this->createTable($key, $table);
 
-        $this->closeFile();
-
-        echo "SQL Writer: SQL script created at - " . $this->fileUrl . " \n";
+        if ($this->closeFile())
+            echo "SQL Writer: SQL script generated at - " . $this->fileUrl . " \n";
     }
 
     /**
-     * Create a file according to created parameters.
+     * Create a file according to fileUrl.
      * 
      * @return void
      */
@@ -145,23 +140,76 @@ class SQLScript
     }
 
     /**
-     * Write to file.
+     * Method responsible for generate the database sql script and write it to file.
      * 
+     * @param  string  $bdname
      * @return void
      */
-    public function writeOnFile($data)
+    private function createDatabase($dbname)
     {
-        fwrite($this->fileHandler, $data);
+        $data = $this->builder->createDatabase($dbname)->charset()->collate()->close()->getQuery();
+
+        $result = $this->writeOnFile($data);
+
+        if ($result)
+            echo "SQL Writer: Database '" . $dbname . "' sql script generated. \n";
+
+        return $result;
+    }
+
+    /**
+     * Method responsible for generate the use database sql script and write it to file.
+     * 
+     * @param  string  $bdname
+     * @return void
+     */
+    private function useDatabase($dbname)
+    {
+        $data = $this->builder->useDatabase($dbname)->close()->getQuery();
+
+        $result = $this->writeOnFile($data);
+
+        return $result;
+    }
+
+    /**
+     * Method responsible for generate the table sql script and write it to file.
+     * 
+     * @param  string  $key
+     * @param  array  $table
+     * @return void
+     */
+    private function createTable($key, $table)
+    {
+        $data = $this->builder->createTable($key, $table)->close()->getQuery();
+
+        $result = $this->writeOnFile($data);
+
+        if ($result)
+            echo "SQL Writer: Table '" . $key . "' sql script generated. \n";
+
+        return $result;
+    }
+
+    /**
+     * Write to file.
+     * 
+     * @param  string  $data
+     * @return int|false
+     */
+    private function writeOnFile(string $data)
+    {
+        return fwrite($this->fileHandler, $data);
     }
 
     /**
      * Close opened file.
      * 
-     * @return void
+     * @return bool
      */
     private function closeFile()
     {
-        fclose($this->fileHandler);
+        return fclose($this->fileHandler);
     }
 
     /**
