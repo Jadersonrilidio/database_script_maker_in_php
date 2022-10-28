@@ -21,14 +21,14 @@ class SQLScript
     protected $builder;
 
     /**
-     * The generated file name.
+     * File name.
      * 
      * @var string
      */
     protected $fileName;
 
     /**
-     * The generated file extension.
+     * File extension.
      * 
      * @var string
      */
@@ -42,7 +42,7 @@ class SQLScript
     protected $filePath;
 
     /**
-     * Validated file full URL.
+     * File URL.
      * 
      * @var string
      */
@@ -88,6 +88,8 @@ class SQLScript
     public function write()
     {
         $this->createOpenFile();
+
+        $this->builder = clone $this->builder;
 
         $dbname = array_key_first($this->dbs);
 
@@ -142,8 +144,8 @@ class SQLScript
     /**
      * Method responsible for generate the database sql script and write it to file.
      * 
-     * @param  string  $bdname
-     * @return void
+     * @param  string  $dbname
+     * @return int|false
      */
     private function createDatabase($dbname)
     {
@@ -160,8 +162,8 @@ class SQLScript
     /**
      * Method responsible for generate the use database sql script and write it to file.
      * 
-     * @param  string  $bdname
-     * @return void
+     * @param  string  $dbname
+     * @return int|false
      */
     private function useDatabase($dbname)
     {
@@ -175,9 +177,9 @@ class SQLScript
     /**
      * Method responsible for generate the table sql script and write it to file.
      * 
-     * @param  string  $key
-     * @param  array  $table
-     * @return void
+     * @param  string  $key  The table name
+     * @param  array  $table  Associative array containing table details and columns structure 
+     * @return int|false
      */
     private function createTable($key, $table)
     {
