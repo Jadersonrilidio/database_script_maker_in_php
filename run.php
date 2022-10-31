@@ -1,6 +1,8 @@
 <?php
 
-require __DIR__ . '/../config/app.php';
+require __DIR__ . '/autoload.php';
+
+require __DIR__ . '/config/app.php';
 
 use App\Core\DatabaseScan;
 use App\Core\SQLScript;
@@ -13,7 +15,7 @@ $dbscan = new DatabaseScan(
 $sqlWriter = new SQLScript(
     $dbs      = $dbscan->getDatabaseStructure(),
     $fileExt  = '.sql',
-    $filePath = BASE_PATH . '/storage/files/'
+    $filePath = __DIR__ . '/storage/files/'
 );
 
 $sqlWriter->write();

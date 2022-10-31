@@ -70,7 +70,7 @@ class SQLScript
      * @param  string  $filepath
      * @return void
      */
-    public function __construct(array $dbStructure, string $fileExt = '.sql', string $filePath = BASE_PATH . '/storage/files/')
+    public function __construct(array $dbStructure, string $fileExt = '.sql', string $filePath = __DIR__ . '/storage/files/')
     {
         $this->dbs = $dbStructure;
         $this->builder = new QueryBuilder;

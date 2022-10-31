@@ -42,7 +42,7 @@ class QueryBuilder
      */
     public function showColumnsFromTable($table)
     {
-        $this->query .= "SHOW COLUMNS FROM " . $table;
+        $this->query .= "SHOW COLUMNS FROM " . strtolower($table);
 
         return $this;
     }
@@ -91,6 +91,18 @@ class QueryBuilder
     public function showTableConstraints($table)
     {
         $this->query .= "";
+
+        return $this;
+    }
+
+    /**
+     * //TODO
+     * 
+     * @return App\Core\QueryBuilder
+     */
+    public function showCreateTable($table)
+    {
+        $this->query .= "SHOW CREATE TABLE " . strtolower($table);
 
         return $this;
     }
